@@ -1,0 +1,56 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: Copyright contributors to the vLLM project
+#
+# Multi-stage BYOG image:
+#   Stage 1 (`byog-tools`): builds an isolated Python environment for BYOG CLI,
+#       orchestration, and plugins. Rebuild only when tools/byog/ changes.
+#   Stage 2 (`byog`): copies /opt/byog onto any pinned CI-built vLLM image
+#       (NVIDIA or ROCm) without rebuilding vLLM or busting tool caches.
+#
+# Example (fast PR assembly reusing prebuilt tools image):
+#   docker build -f docker/Dockerfile.byog --target byog-tools -t byog-tools:dev .
+#   docker build -f docker/Dockerfile.byog \
+#       --build-arg VLLM_BASE_IMAGE=vllm/vllm-openai:latest \
+#       --build-arg BYOG_TOOLS_IMAGE=byog-tools:dev \
+#       -t byog:dev .
+
+ARG PYTHON_IMAGE=python:3.12-slim
+ARG VLLM_BASE_IMAGE=vllm/vllm-openai:latest
+ARG BYOG_TOOLS_IMAGE=byog-tools
+
+#################### STAGE 1: PREBUILT BYOG-TOOLS ####################
+FROM ${PYTHON_IMAGE} AS byog-tools
+
+ENV UV_PYTHON_INSTALL_DIR=/opt/byog/python \
+    UV_PYTHON_PREFERENCE=only-managed \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+RUN pip install --no-cache-dir uv
+
+WORKDIR /opt/byog
+COPY tools/byog/requirements.lock /opt/byog/requirements.lock
+RUN uv python install 3.12 && \
+    uv venv /opt/byog/venv --python 3.12 && \
+    uv pip install --python /opt/byog/venv/bin/python --no-cache -r /opt/byog/requirements.lock
+
+COPY tools/byog /opt/byog/src/tools/byog
+COPY tests/byog /opt/byog/src/tests/byog
+
+RUN mkdir -p /opt/byog/bin && \
+    printf '%s\n' \
+      '#!/usr/bin/env bash' \
+      'set -euo pipefail' \
+      'export PYTHONPATH="/opt/byog/src${PYTHONPATH:+:$PYTHONPATH}"' \
+      'exec /opt/byog/venv/bin/python -m tools.byog "$@"' \
+      > /opt/byog/bin/byog && \
+    chmod +x /opt/byog/bin/byog
+
+#################### STAGE 2: ASSEMBLED BYOG IMAGE ####################
+FROM ${VLLM_BASE_IMAGE} AS byog
+
+COPY --from=byog-tools /opt/byog /opt/byog
+RUN ln -sf /opt/byog/bin/byog /usr/local/bin/byog
+
+ENTRYPOINT []
+CMD ["byog", "--help"]

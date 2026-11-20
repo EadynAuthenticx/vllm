@@ -1,0 +1,4 @@
+# Core BYOG harness dependencies (C0-C5).
+pydantic>=2.7,<3
+PyYAML>=6.0,<7
+pytest>=8.0,<10

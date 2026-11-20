@@ -1,0 +1,1 @@
+# Direct smoke benchmark plugin (stdlib subprocess; no extra deps in P0).

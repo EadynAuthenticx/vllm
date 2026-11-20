@@ -1,0 +1,5 @@
+{
+  "schema_version": 1,
+  "description": "Provenance manifest for vendored benchmark/eval code in tools/byog.",
+  "vendored": []
+}

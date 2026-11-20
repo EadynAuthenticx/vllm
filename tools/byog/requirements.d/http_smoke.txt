@@ -1,0 +1,1 @@
+# HTTP smoke benchmark plugin (stdlib HTTP; no extra deps in P0).

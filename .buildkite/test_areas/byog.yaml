@@ -2,13 +2,32 @@ group: BYOG
 depends_on:
   - image-build-cpu
 steps:
-- label: ":computer: (CPU) BYOG Harness Unit & Contract Tests"
+- label: ":computer: (CPU) BYOG Harness Unit, Contract & Lockfile Tests"
   key: byog-cpu-tests
   timeout_in_minutes: 15
   device: cpu-small
   source_file_dependencies:
     - tools/byog/
     - tests/byog/
+    - docker/Dockerfile.byog
     - .buildkite/test_areas/byog.yaml
   commands:
     - PYTHONPATH=/vllm-workspace pytest -v -s -c byog/pytest.ini byog/
+
+- label: ":nvidia: (H200 MIG 18GB) BYOG End-to-End GPU Smoke (GSM8K + HTTP + Direct)"
+  key: byog-nvidia-gpu-smoke
+  timeout_in_minutes: 25
+  device: h200_18gb
+  depends_on:
+    - image-build
+  working_dir: /vllm-workspace
+  source_file_dependencies:
+    - tools/byog/
+    - tests/byog/
+    - docker/Dockerfile.byog
+    - .buildkite/test_areas/byog.yaml
+  commands:
+    - PYTHONPATH=/vllm-workspace python3 -m tools.byog catalog list
+    - PYTHONPATH=/vllm-workspace python3 -m tools.byog validate --spec tests/byog/fixtures/smoke_gpu_spec.yaml
+    - PYTHONPATH=/vllm-workspace python3 -m tools.byog run --spec tests/byog/fixtures/smoke_gpu_spec.yaml --out /tmp/byog-ci-out
+    - PYTHONPATH=/vllm-workspace python3 -m tools.byog validate-bundle /tmp/byog-ci-out/default/*/bundle.tar.gz

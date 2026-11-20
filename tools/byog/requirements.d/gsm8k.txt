@@ -1,0 +1,1 @@
+# GSM8K eval plugin (stdlib HTTP + JSONL; no extra deps in P0).
