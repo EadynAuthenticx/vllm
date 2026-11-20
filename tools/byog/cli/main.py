@@ -13,10 +13,10 @@ from typing import TextIO
 
 from tools.byog.bundle import BundleValidationError, validate_bundle
 from tools.byog.catalog import Catalog, CatalogError
+from tools.byog.catalog.assets import CachingAssetProvider
 from tools.byog.executor.coordinator import JobCoordinator
 from tools.byog.executor.interfaces import (
     AssetProvider,
-    FixtureAssetProvider,
     ServerLauncher,
 )
 from tools.byog.executor.platform import NvidiaSubprocessLauncher
@@ -218,7 +218,7 @@ def main(
         return EXIT_OK
 
     srv_launcher = launcher or NvidiaSubprocessLauncher()
-    provider = asset_provider or FixtureAssetProvider(Path.cwd())
+    provider = asset_provider or CachingAssetProvider()
     coord = JobCoordinator(
         catalog=cat,
         launcher=srv_launcher,

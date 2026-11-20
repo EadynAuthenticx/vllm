@@ -1,0 +1,40 @@
+schema_version: 1
+name: gsm8k
+kind: eval
+description: 5-shot GSM8K math accuracy evaluation against OpenAI-compatible vLLM API.
+execution_mode: server
+lifecycle: reset_cache
+platforms:
+  - nvidia
+  - rocm
+entrypoint: tools.byog.executor.evals.gsm8k.plugin:GSM8KEvalRunner
+protocol_version: "1.0"
+required_for_quality: true
+assets:
+  train:
+    id: gsm8k_train
+    source: https://vllm-public-assets.s3.us-west-2.amazonaws.com/ci-datasets/gsm8k/train.jsonl
+    revision: vllm-s3-2026-01
+    sha256: 17f347dc51477c50d4efb83959dbb7c56297aba886e5544ee2aaed3024813465
+    tier: small_permissive
+  test:
+    id: gsm8k_test
+    source: https://vllm-public-assets.s3.us-west-2.amazonaws.com/ci-datasets/gsm8k/test.jsonl
+    revision: vllm-s3-2026-01
+    sha256: 3730d312f6e3440559ace48831e51066acaca737f6eabec99bccb9e4b3c39d14
+    tier: small_permissive
+publication_policy:
+  reviewed: false
+  allow_question_text: false
+  allow_reference_answer: false
+  allow_model_response: false
+  note: Withhold sample text until dataset publication policy is formally reviewed.
+defaults:
+  num_questions: 1319
+  num_shots: 5
+  repeats: 1
+  concurrency: [16]
+  max_tokens: 256
+  temperature: 0.0
+  seed: 42
+  use_chat_completions: false

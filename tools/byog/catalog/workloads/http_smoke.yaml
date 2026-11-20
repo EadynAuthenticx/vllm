@@ -1,0 +1,15 @@
+schema_version: 1
+name: http_smoke
+kind: benchmark
+description: Lightweight HTTP serving throughput/latency smoke benchmark.
+execution_mode: server
+lifecycle: reset_cache
+platforms:
+  - nvidia
+  - rocm
+entrypoint: tools.byog.executor.benchmarks.http_smoke.plugin:HttpSmokeBenchmarkRunner
+protocol_version: "1.0"
+defaults:
+  concurrency: [1, 4]
+  num_requests: 8
+  max_tokens: 32
