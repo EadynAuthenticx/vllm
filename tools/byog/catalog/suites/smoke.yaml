@@ -1,0 +1,6 @@
+schema_version: 1
+name: smoke
+description: Fast end-to-end smoke suite with GSM8K.
+benchmarks: []
+evals:
+  - name: gsm8k
