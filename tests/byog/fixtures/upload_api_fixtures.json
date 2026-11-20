@@ -1,0 +1,67 @@
+{
+  "endpoint": "POST /api/v1/bundles",
+  "cases": {
+    "success_created": {
+      "http_status": 201,
+      "request": {
+        "schema_version": 1,
+        "job_id": "default",
+        "attempt_id": "01JABCDEF0123456789ABCDEF0",
+        "bundle_sha256": "a3f9c210a3f9c210a3f9c210a3f9c210a3f9c210a3f9c210a3f9c210a3f9c210",
+        "size_bytes": 4096,
+        "source_tier": "ci_nightly",
+        "ci_run_id": "bk-12345"
+      },
+      "response": {
+        "status": "created",
+        "job_id": "default",
+        "attempt_id": "01JABCDEF0123456789ABCDEF0",
+        "bundle_sha256": "a3f9c210a3f9c210a3f9c210a3f9c210a3f9c210a3f9c210a3f9c210a3f9c210",
+        "result_url": "https://ci.vllm.ai/perf/runs/01JABCDEF0123456789ABCDEF0",
+        "uploaded_by": "vllm-ci-bot",
+        "uploaded_at": "2026-11-20T00:00:00Z"
+      }
+    },
+    "idempotent_retry": {
+      "http_status": 200,
+      "request": {
+        "schema_version": 1,
+        "job_id": "default",
+        "attempt_id": "01JABCDEF0123456789ABCDEF0",
+        "bundle_sha256": "a3f9c210a3f9c210a3f9c210a3f9c210a3f9c210a3f9c210a3f9c210a3f9c210",
+        "size_bytes": 4096,
+        "source_tier": "ci_nightly",
+        "ci_run_id": "bk-12345"
+      },
+      "response": {
+        "status": "duplicate_identical",
+        "job_id": "default",
+        "attempt_id": "01JABCDEF0123456789ABCDEF0",
+        "bundle_sha256": "a3f9c210a3f9c210a3f9c210a3f9c210a3f9c210a3f9c210a3f9c210a3f9c210",
+        "result_url": "https://ci.vllm.ai/perf/runs/01JABCDEF0123456789ABCDEF0",
+        "uploaded_by": "vllm-ci-bot",
+        "uploaded_at": "2026-11-20T00:00:00Z"
+      }
+    },
+    "attempt_conflict": {
+      "http_status": 409,
+      "request": {
+        "schema_version": 1,
+        "job_id": "default",
+        "attempt_id": "01JABCDEF0123456789ABCDEF0",
+        "bundle_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "size_bytes": 4096,
+        "source_tier": "community",
+        "ci_run_id": null
+      },
+      "response": {
+        "error": "attempt_conflict",
+        "job_id": "default",
+        "attempt_id": "01JABCDEF0123456789ABCDEF0",
+        "existing_bundle_sha256": "a3f9c210a3f9c210a3f9c210a3f9c210a3f9c210a3f9c210a3f9c210a3f9c210",
+        "submitted_bundle_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "message": "Attempt already exists with different bundle content."
+      }
+    }
+  }
+}
